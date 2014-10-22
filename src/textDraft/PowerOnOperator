@@ -1,0 +1,13 @@
+ /**
+   * Responsibility: power on the instance
+   *
+   * @param instance: vHost, VM
+   * @return none: use try/catch to catch exception
+   *
+   */
+   
+   
+   
+// Power On
+vm.powerOnVM_Task(null);
+System.out.println("\n\nvm:" + vm.getName() + " powered on.\n");

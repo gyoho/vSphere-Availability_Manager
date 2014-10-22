@@ -1,0 +1,26 @@
+ /**
+   * Responsibility: find the host for the VM
+   *
+   * @param vm: VM instance
+   * @return host: host instance
+   *
+   */
+
+HostSystem host;
+		
+// get all vHosts by calling InstanceGetter
+
+
+
+// go through each host and search for the VM
+OuterLoop:
+for(int i=0; i<vhosts.length; i++) {
+	// get all VMs associated with the host
+	VirtualMachine[] vms = ((HostSystem)vhosts[i]).getVms();
+	for(int j=0; j<vms.length; j++) {
+		vms[j].getName().equals(vmname);
+		host = (HostSystem)vhosts[i];
+		break OuterLoop;
+	}
+}
+

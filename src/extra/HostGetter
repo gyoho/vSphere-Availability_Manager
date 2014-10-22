@@ -1,0 +1,26 @@
+package Components;
+
+import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.VirtualMachineRuntimeInfo;
+import com.vmware.vim25.mo.HostSystem;
+import com.vmware.vim25.mo.ManagedEntity;
+import com.vmware.vim25.mo.VirtualMachine;
+
+public class HostGetter {
+	
+	public static ManagedObjectReference getHostofVm(ManagedEntity vm) {
+		
+		// get VM runtime status
+		VirtualMachineRuntimeInfo vmri = (VirtualMachineRuntimeInfo) ((VirtualMachine)vm).getRuntime();
+		ManagedObjectReference host = vmri.getHost();
+		
+/*** Cannot cast ManagedObjectReference to VirtualMachine or HostSystem ***/ 
+		
+		host.getType().get
+		
+//		((VirtualMachine)host).getGuest().getIpAddress();
+		
+		return host;
+	}
+
+}
