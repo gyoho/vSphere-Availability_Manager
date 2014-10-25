@@ -7,7 +7,8 @@ public class Credential {
 	private String resourcePoolName = "Team06_vHOSTS";
 	private String usrName = "administrator";
 	private String passwd = "12!@qwQW";
-	private int timeout = 5*1000;
+	// if user powers it off, it takes time to reflect the change
+	private int timeout = 7*1000;
 	
 	public String getManagementCenterIpAddr() {
 		return managementCenterIpAddr;

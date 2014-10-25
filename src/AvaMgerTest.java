@@ -7,16 +7,16 @@ public class AvaMgerTest {
 	
 	// all helper
 	private VmToHostMapper vmToHostMapper;	
-	private LivenesMonitor livenessMonitor;
+	private LivenessMonitor livenessMonitor;
 	
 	// specific center
 	private ServiceInstance center;
 	// specific Host
-	private HostSystem host;
+	private ManagedEntity host;
 	// specific VM
-	private VirtualMachine vm;
+	private ManagedEntity vm;
 	// specific VM in mgmt center
-	private VirtualMachine vmHost;
+	private ManagedEntity vmHost;
 	
 	// constructor
 	public AvaMgerTest() throws Exception {
@@ -28,25 +28,33 @@ public class AvaMgerTest {
 
 		// get specific VM
 		String vmName = "T06-VM01-Ubt-Ypg";
-		vm = (VirtualMachine) new InventoryNavigator(centerRootFolder).searchManagedEntity("VirtualMachine", vmName);
+		vm =  new InventoryNavigator(centerRootFolder).searchManagedEntity("VirtualMachine", vmName);
 
 		// get Host
 		String hostName = "130.65.132.182"; 
-		host = (HostSystem) new InventoryNavigator(centerRootFolder).searchManagedEntity("HostSystem", hostName);
+		host = new InventoryNavigator(centerRootFolder).searchManagedEntity("HostSystem", hostName);
 		
 		// get center
 		URL mgmtURL = new URL("https://130.65.132.14/sdk");
-		ServiceInstance mgmtCenter = new ServiceInstance(vCenterURL, "administrator", "12!@qwQW", true);
+		ServiceInstance mgmtCenter = new ServiceInstance(mgmtURL, "administrator", "12!@qwQW", true);
 		Folder mgmtRootFolder = mgmtCenter.getRootFolder();
 		
+		// get datacenter
+		String dcName = "DC-Team06";
+		Datacenter datacenter = (Datacenter) new InventoryNavigator(centerRootFolder).searchManagedEntity("Datacenter", dcName);		
+		
 		// get specific VM
-		vmHost = (VirtualMachine) new InventoryNavigator(centerRootFolder).searchManagedEntity("VirtualMachine", hostName);
+		String vmHostName = "T06-vHost02-cum2 _IP=.132.182";
+		vmHost = new InventoryNavigator(mgmtRootFolder).searchManagedEntity("VirtualMachine", vmHostName);
+		
+		// set alarm for the datacenter
+		CreateVmPowerStateAlarm.registerAlarm(center, datacenter);
 		
 		// set alarm for all VMs
-		CreateVmPowerStateAlarm.registerAlarmToVm(center, vm);
+//		CreateVmPowerStateAlarm.registerAlarm(center, vm);
 		
 		// instantiate monitors for all VMs
-		livenessMonitor = new LivenesMonitor(3*1000);
+		livenessMonitor = new LivenessMonitor(3*1000);
 		
 	}
 	
@@ -60,7 +68,8 @@ public class AvaMgerTest {
 			// check vHost (only start pinging vHost at this point)
 		
 			// Case1: VM down, vHost OK
-			if(livenessMonitor.isReachable(vmHost)) {
+			if(livenessMonitor.isReachable("130.65.132.182")) {
+				System.out.println("\nCase #1: VM is dead\n");
 
 				// Check VM power state
 			
@@ -71,13 +80,14 @@ public class AvaMgerTest {
 						
 						// Case1: alarm is on: on purpose
                         if(AlarmChecker.isTriggered(vm)) {
-                        	// Do nothing
+                        	System.out.println("VM powered off by user");
                         } 
                         
                         // Case2: alarm is off: failure happened (Cannot happen)
                         else {
-                        	/* vHost is powered off */
-                        	//TODO: recovery process
+                        	System.out.println("Check if alarm is set");
+                        	// power on the VM
+                            PowerOnTasker.powerOn(vm);
                         }
 					}
 	
@@ -93,6 +103,7 @@ public class AvaMgerTest {
 		
 			// Case2: vHost down, thus VM also down too
 			else {
+				System.out.println("\nCase #2: Host is dead\n");
 		
 				// check vHost power state
 		
@@ -103,6 +114,9 @@ public class AvaMgerTest {
         
                         // power on the vHost
                         PowerOnTasker.powerOn(vmHost);
+                        
+                        // wait for a while
+	                    ReconnectHostTasker.reconnect();
 
                         // power on the VMs
                         PowerOnTasker.powerOn(vm);
@@ -118,6 +132,9 @@ public class AvaMgerTest {
 			
 						// power on the vHost
 	                    PowerOnTasker.powerOn(vmHost);
+	                    
+	                    // wait for a while
+	                    ReconnectHostTasker.reconnect();
 	
 	                    // power on the VMs
 	                    PowerOnTasker.powerOn(vm);

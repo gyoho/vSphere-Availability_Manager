@@ -21,7 +21,10 @@ public class AlarmChecker {
 		
 		if(((VirtualMachine)vm).getSummary().getOverallStatus().toString().equals("yellow")) {
 			isTriggered = true;
-			System.out.println("VmPowerStateAlarm triggered!");
+			System.out.println("Alarm triggered!");
+		} else {
+			isTriggered = false;
+			System.out.println("No Alarm triggered!");
 		}
 		
 		return isTriggered;

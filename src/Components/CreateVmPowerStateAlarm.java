@@ -19,18 +19,43 @@ import com.vmware.vim25.AlarmSpec;
 import com.vmware.vim25.AlarmTriggeringAction;
 import com.vmware.vim25.DuplicateName;
 import com.vmware.vim25.InvalidName;
+import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.RuntimeFault;
 import com.vmware.vim25.SendEmailAction;
 import com.vmware.vim25.StateAlarmExpression;
 import com.vmware.vim25.StateAlarmOperator;
+import com.vmware.vim25.mo.Alarm;
 import com.vmware.vim25.mo.AlarmManager;
 import com.vmware.vim25.mo.ManagedEntity;
 import com.vmware.vim25.mo.ServiceInstance;
 
 public class CreateVmPowerStateAlarm {
 	
-	public static void registerAlarmToVm(ServiceInstance serviceInstance, ManagedEntity vm) throws InvalidName, DuplicateName, RuntimeFault, RemoteException {
+	public static void registerAlarm(ServiceInstance serviceInstance, ManagedEntity mgent) throws InvalidName, DuplicateName, RuntimeFault, RemoteException {
+		
+		AlarmManager alarmMgr = serviceInstance.getAlarmManager();
+		if(!isAlarmRegistered(alarmMgr, mgent)) {
+			createNewAlarm(alarmMgr, mgent);
+		}		
+	}
 	
+	public static boolean isAlarmRegistered(AlarmManager alarmMgr, ManagedEntity mgent) throws InvalidName, DuplicateName, RuntimeFault, RemoteException {
+		
+		// get all registered alarms info for this instance
+		Alarm[] alarms = alarmMgr.getAlarm(mgent);
+		
+		// check if the specified alarm is registered
+		for(Alarm alarm : alarms) {
+			if(alarm.getAlarmInfo().getName().equals("VmPowerStateAlarm")) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private static void createNewAlarm(AlarmManager alarmMgr, ManagedEntity mgent) throws InvalidName, DuplicateName, RuntimeFault, RemoteException {
+		
 		// Action to perform when the alarm is triggered
 		AlarmAction emailAction = createAlarmTriggerAction(createEmailAction());
 		// Top-level alarm expression that defines trigger conditions
@@ -46,9 +71,7 @@ public class CreateVmPowerStateAlarm {
 		spec.setEnabled(true);
 		spec.setSetting(alarmset);
 		
-		
-		AlarmManager alarmMgr = serviceInstance.getAlarmManager();	
-		alarmMgr.createAlarm(vm, spec);
+		alarmMgr.createAlarm(mgent, spec);
 	}
 
 	private static SendEmailAction createEmailAction() {
@@ -86,5 +109,4 @@ public class CreateVmPowerStateAlarm {
 		alarmset.setToleranceRange(0);
 		return alarmset;
 	}
-
 }

@@ -2,7 +2,7 @@
    * Responsibility: find the host for the VM
    *
    * @param vm: VM instance
-   * @return host: host instance
+   * @return host: ManagedEntity instance
    *
    */
 

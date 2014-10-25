@@ -30,7 +30,7 @@ public class RevertToSnapshotTasker {
 		// revert to current snapshot
 		Task revertTask = ((VirtualMachine) vm).revertToCurrentSnapshot_Task(null);
 		if (revertTask.waitForTask() == Task.SUCCESS) {
-			System.out.println("VM is reverted to the latest snapshot.");
+			System.out.println(vm.getName() + " is reverted to the latest snapshot.");
 		}
 	}
 

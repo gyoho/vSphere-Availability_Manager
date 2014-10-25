@@ -18,37 +18,23 @@ import com.vmware.vim25.RuntimeFault;
 import com.vmware.vim25.TaskInProgress;
 import com.vmware.vim25.VmConfigFault;
 import com.vmware.vim25.mo.ManagedEntity;
+import com.vmware.vim25.mo.Task;
 import com.vmware.vim25.mo.VirtualMachine;
 
 public class PowerOnTasker {
 	
-	public static void powerOn(ManagedEntity vm) {
+	public static void powerOn(ManagedEntity vm) throws RuntimeFault, RemoteException, InterruptedException {
 		// Power On
-		try {
-			((VirtualMachine)vm).powerOnVM_Task(null);
-		} catch (VmConfigFault e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TaskInProgress e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileFault e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidState e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InsufficientResourcesFault e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RuntimeFault e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Task powerOnTask = ((VirtualMachine)vm).powerOnVM_Task(null);
+		
+		if (powerOnTask.waitForTask() == Task.SUCCESS) {
+			System.out.println("vm:" + vm.getName() + " powered on.");
+			
+			// after power on, need time to boot up the VM
+			Thread.sleep(60*1000);
+		} else {
+			System.out.println("Hardware failure");
 		}
-		System.out.println("\n\nvm:" + vm.getName() + " powered on.\n");
 	}
 
 }
