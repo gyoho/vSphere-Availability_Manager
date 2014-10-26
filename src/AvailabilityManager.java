@@ -9,7 +9,7 @@ import com.vmware.vim25.mo.*;
 import Components.*;
 
 
-public class AvailabilityManager extends Frame {
+public class AvailabilityManager {
 	
 	private Thread recoveryManager;
 	
@@ -90,47 +90,25 @@ public class AvailabilityManager extends Frame {
 //		snapshotTasker.takeSnapshot();
 		
 		
-		recoveryManager = new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList));
-		
-		
-		
-		addKeyListener (new keyDown());
-		
+//		recoveryManager = new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList));
 	}
 	
-	public void start() throws Exception {
-		
-		
-		/*for(ManagedEntity vm : vmList) {
-			System.out.println("vm name: " + vm.getName());
-			String name = vmToHostMapper.getHostOfVm(vm).getName();
-			System.out.println("host name: " + name);
-		}*/
-		
-		while(true) {
+	public void start() {
 			
 			// print statistics
+
 			
-						
-			// get the recovery manager work
-//			new Thread(new RecoveryManager(vmList, vmToHostMapper)).start();
-			recoveryManager.start();
-			
-			
-			// take snapshot for every configured time
-//			new Thread(new SnapshotTasker(vmListInRecPool, vmList)).start();
-			
-		}
-	}
-	
-	// inner class for intercepting the key press
-	private class keyDown extends KeyAdapter {
-		public void keyPressed (KeyEvent e) {
-			int keyCode = e.getKeyCode();
-			switch(keyCode) {
-				case KeyEvent.VK_Q:
-					System.exit(0);
-			}
-		}
+			try {
+//				new Thread(new SnapshotTasker(vmListInRecPool, vmList)).start();
+				Thread.sleep(2*1000);
+				// get the recovery manager work
+				new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList)).start();
+				
+				// take snapshot for every configured time
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
 	}
 }

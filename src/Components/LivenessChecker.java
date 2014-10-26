@@ -32,7 +32,7 @@ public class LivenessChecker {
     public static boolean isResponding(String ipAddr) throws Exception {
     	boolean isReachable = false;
     	
-		String cmd = "ping -c 1 " + ipAddr;
+		String cmd = "ping -c 3 " + ipAddr;
 		Process ping = Runtime.getRuntime().exec(cmd);
 		ping.waitFor();
 		if(ping.exitValue() == 0) {
@@ -53,7 +53,7 @@ public class LivenessChecker {
 //		System.out.println("IP address: " + ipAddr);
 		
 		if(ipAddr == null) {
-			System.out.println("No IP address.");
+			System.out.println("\n\nNo IP address.");
 			// this is not reachable. b/c the ip is not available when power off
 			// consider this as dead
 			return false;

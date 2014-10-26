@@ -25,7 +25,7 @@ public class FailureMonitor {
 	
 	public void start(ArrayList<ManagedEntity> vmListInRecPool, ArrayList<ManagedEntity> hostList, ArrayList<ManagedEntity> vmList) throws Exception {
 	
-		/** For each VM ping in turn**/
+		/** For each VM ping in turn **/
 		// while all VMs are responding
 		while(isAllVMsAlive(vmList)) {
 			// do nothing
@@ -42,10 +42,10 @@ public class FailureMonitor {
 		/** check if its host is responding **/
 		
 		// get its host
-		System.out.println("trouble vm name: " + troubleVM.getName());
+//		System.out.println("trouble vm name: " + troubleVM.getName());
 
 		HostSystem host = (HostSystem) VmToHostMapper.getHostOfVm(hostList, troubleVM);
-		System.out.println("host name: " + host.getName());
+//		System.out.println("host name: " + host.getName());
 		
 		// get its hostVM
 		VirtualMachine hostVM = (VirtualMachine) VmToHostMapper.getHostVMOfVM(vmListInRecPool, hostList, troubleVM);
@@ -54,17 +54,19 @@ public class FailureMonitor {
 		String hostIpAddr = ((HostSystem)VmToHostMapper.getHostOfVm(hostList, troubleVM)).getName();
 //		String hostIpAddr = host.getConfig().getNetwork().getVnic()[0].getSpec().getIp().getIpAddress();
 		
+		
 		// Case1: VM down, vHost OK
 		if(LivenessChecker.isResponding(hostIpAddr)) {
-			System.out.println("\nVM is down\n");
+			System.out.println("\nVM is down");
 			
 			// instantiate the handler thread
 			new Thread(new VMFailureHandler(troubleVM, vmList)).start();
+			Thread.sleep((long) (0.5*1000));
 		}
 		
 		// Case2: vHost down, thus VM also down too
 		else {
-			System.out.println("\nHost is down\n");
+			System.out.println("\nHost is down");
 			
 			// instantiate the handler thread
 			new Thread(new HostFailureHandler(hostVM, host, troubleVM, vmList)).start();

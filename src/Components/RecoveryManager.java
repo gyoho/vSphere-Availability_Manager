@@ -20,13 +20,16 @@ public class RecoveryManager implements Runnable {
 
 	@Override
 	public void run() {
-		// monitor the VM by pinging
-		// instantiate a handler according to the case
-		try {
-			failureMonitor.start(vmListInRecPool, hostList, vmList);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		while(true) {
+			// monitor the VM by pinging
+			// instantiate a handler according to the case
+			try {
+				failureMonitor.start(vmListInRecPool, hostList, vmList);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

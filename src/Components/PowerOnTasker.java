@@ -26,7 +26,7 @@ public class PowerOnTasker {
 		
 		VirtualMachineRuntimeInfo vmri = (VirtualMachineRuntimeInfo) vm.getRuntime();
 		
-		if(vmri.getPowerState() == VirtualMachinePowerState.poweredOn) {
+		if(vmri.getPowerState() != VirtualMachinePowerState.poweredOn) {
 			// Power On
 			Task powerOnTask = ((VirtualMachine)vm).powerOnVM_Task(null);
 			
@@ -49,7 +49,7 @@ public class PowerOnTasker {
 		
 		// for each vm in the list, register it to the host
 		for(ManagedEntity vm : vmList) {
-			powerOnVM((VirtualMachine) vm, (long) (0.1*1000));
+			powerOnVM((VirtualMachine) vm, (long) (1*1000));
 		}
 	}
 }
