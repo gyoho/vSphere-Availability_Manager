@@ -1,0 +1,75 @@
+import java.net.URL;
+
+import Components.*;
+
+import com.vmware.vim25.mo.*;
+
+
+public class RecvMgrTest {
+	
+	// all helper
+	private VmToHostMapper vmToHostMapper;	
+	private LivenessChecker livenessMonitor;
+	
+	// specific center
+	private ServiceInstance center;
+	// specific Host
+	private ManagedEntity host;
+	// specific VM
+	private ManagedEntity vm;
+	// specific VM in mgmt center
+	private ManagedEntity vmHost;
+	
+
+	private FailureMonitor failureMonitor;
+	private FailureHandler failureHandler;
+	
+	// constructor
+	public RecvMgrTest() throws Exception {
+		
+		// get center
+		URL vCenterURL = new URL("https://130.65.132.106/sdk");
+		center = new ServiceInstance(vCenterURL, "administrator", "12!@qwQW", true);
+		Folder centerRootFolder = center.getRootFolder();
+
+		// get specific VM
+		String vmName = "T06-VM01-Ubt-Ypg";
+		vm =  new InventoryNavigator(centerRootFolder).searchManagedEntity("VirtualMachine", vmName);
+
+		// get Host
+		String hostName = "130.65.132.182"; 
+		host = new InventoryNavigator(centerRootFolder).searchManagedEntity("HostSystem", hostName);
+		
+		// get center
+		URL mgmtURL = new URL("https://130.65.132.14/sdk");
+		ServiceInstance mgmtCenter = new ServiceInstance(mgmtURL, "administrator", "12!@qwQW", true);
+		Folder mgmtRootFolder = mgmtCenter.getRootFolder();
+		
+		// get datacenter
+		String dcName = "DC-Team06";
+		Datacenter datacenter = (Datacenter) new InventoryNavigator(centerRootFolder).searchManagedEntity("Datacenter", dcName);		
+		
+		// get specific VM
+		String vmHostName = "T06-vHost02-cum2 _IP=.132.182";
+		vmHost = new InventoryNavigator(mgmtRootFolder).searchManagedEntity("VirtualMachine", vmHostName);
+		
+		// set alarm for the datacenter
+		CreateVmPowerStateAlarm.registerAlarm(center, datacenter);
+		
+		// set alarm for all VMs
+//		CreateVmPowerStateAlarm.registerAlarm(center, vm);
+		
+		failureMonitor = new FailureMonitor();
+		
+	}
+	
+	public void run() throws Exception {
+
+		// monitor the VM by pinging
+		// instantiate a handler according to the case
+		failureHandler = FailureMonitor.start("130.65.132.182", (VirtualMachine) vm);
+		
+		failureHandler.process();	
+	}
+}
+

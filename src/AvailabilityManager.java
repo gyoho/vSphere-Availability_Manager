@@ -1,17 +1,17 @@
-import java.net.URL;
+import java.awt.Frame;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import sun.rmi.runtime.Log;
-import Components.*;
-
-import com.vmware.vim25.*;
 import com.vmware.vim25.mo.*;
 
+import Components.*;
 
-public class AvailabilityManager {
+
+public class AvailabilityManager extends Frame {
 	
-	private Credential credentials;
+	private CredentialsHolder credentials;
 	
 	// for vCenter
 	private ServiceInstance vCenterServiceInstance;
@@ -28,13 +28,19 @@ public class AvailabilityManager {
 	private ArrayList<ManagedEntity> datacenterList;
 	private ArrayList<ManagedEntity> vmListInRecPool;
 	
-	// all helper
+	// main tasker
 	private VmToHostMapper vmToHostMapper;	
-	private LivenessMonitor livenessMonitor;
+	private SnapshotTasker snapshotTasker;
+	private RecoveryManager recoveryManager;
 	
 	
 	// constructor
 	public AvailabilityManager() throws Exception {
+		
+		/*** All initial configuration ***/
+		
+		// Instantiate credentials
+		credentials = new CredentialsHolder();
 		
 		// get service instance in vCenter
 		vCenterServiceInstance = ServiceInstanceGetter.getServiceInstance
@@ -61,114 +67,79 @@ public class AvailabilityManager {
 		
 		
 		// instantiate the vm to host map
-		vmToHostMapper = new VmToHostMapper(hostList);
+		vmToHostMapper = new VmToHostMapper(hostList, vmListInRecPool);
 		
-		// set alarm for the datacenter
+		// set alarm for all the datacenter
 		for(ManagedEntity dc : datacenterList) {
 			CreateVmPowerStateAlarm.registerAlarm(vCenterServiceInstance, dc);
 		}
 		
-		
-		// set alarm for all VMs
+		// Alternative way: set alarm for all VMs
 		/*for(ManagedEntity vm : vmList) {
 			CreateVmPowerStateAlarm.registerAlarm(vCenterServiceInstance, vm);
 		}*/
 		
-		// instantiate monitors for all VMs
-		livenessMonitor = new LivenessMonitor(credentials.getTimeout());
+		// instantiate the Snapshot Taker
+		snapshotTasker = new SnapshotTasker(vmListInRecPool, vmList);
 		
+		// take first snapshot
+//		TODO: activate
+//		snapshotTasker.takeSnapshot();
+		
+		addKeyListener (new keyDown());
 	}
 	
-	public void run() {
+	public void start() throws Exception {
+		
+		while(true) {
+			
+			// print statistics
+			
+						
+			// get the recovery manager work
+			/** instantiate and invoke the Recovery Manager **/
+			
+			
+			// test for only one VM
+			
+				// get its host
+				HostSystem host = (HostSystem) vmToHostMapper.getHostOfVm(vmList.get(0));
+				
+				// get its hostVM
+				VirtualMachine hostVM = (VirtualMachine) vmToHostMapper.getHostVMOfVM(vmList.get(0));
+				
+				// register the recovery manager
+				new Thread(new RecoveryManager(hostVM, host, (VirtualMachine) vmList.get(0))).start();
 
-		// monitor the VM by pinging
-//		livenessMonitor.isReachable(vm);
-		
 			
-		// VM is not responding: identify who has problem
-
-			// check vHost (only start pinging vHost at this point)
-        
-                // find the vHost
-                /*FindHostTasker*/
-        
-                // ping the host
-                /*LivenessMonitor*/
-        
-		
-			/*** Two cases ***/
-		
-			// Case1: VM down, vHost OK
-		
-				// Check VM power state
-                /*PowerStateChecker*/
-		
-					/*** Two cases ***/
-		
-					// Case1: power is off
-		
-						// check alarm state: check if on purpose or by accident
-                        /*AlarmMonitor*/
+			// for each VM, get its recovery manager
+			/*for(ManagedEntity vm : vmList) {
+				
+				// get its host
+				HostSystem host = (HostSystem) vmToHostMapper.getHostOfVm(vm);
+				
+				// get its hostVM
+				VirtualMachine hostVM = (VirtualMachine) vmToHostMapper.getHostVMOfVM(vm);
+				
+				// register the recovery manager
+				new Thread(new RecoveryManager(hostVM, host, (VirtualMachine) vm)).start();
+			}*/
 			
-							/*** Two cases ***/
 			
-							// Case1: alarm is on: on purpose
+			// take snapshot for every configured time
+//			new Thread(new SnapshotTasker(vmListInRecPool, vmList)).start();
 			
-									// Do nothing
-			
-							// Case2: alarm is off: failure happened (Cannot happen)
-			
-									/* vHost is powered off */
-                                    // GOTO: recovery process
-        
-		
-					// Case2: power is on
-		
-						// failure: revert to the current snapshot
-                        /*RevertToSnapshotManager*/
-        
-                        // power on the VM
-                        /*PowerOnOperator*/
-        
-        
-		
-			// Case2: vHost down, thus VM also down too
-		
-				// check vHost power state
-                /*PowerStateChecker*/
-		
-				/*** Two cases ***/
-		
-				// Case1: power is off (No need to check alarm)
-		
-					// take action immediately
-        
-                        // power on the vHost
-                        /*PowerOnOperator*/
-        
-                        // get the VM belongs to the vHost
-                        /*InstanceGetter*/
-        
-                        // power on the VMs
-                        /*PowerOnOperator*/
-        
-        
-		
-				// Case2: power is on
-		
-					// vHost has problem, thus VM is also not reachable: take action
-		
-						// revert the vHost to the current snapshot
-                        /*RevertToSnapshotManager*/
-		
-						// power on the vHost
-                        /*PowerOnOperator*/
-		
-                        // get the VM belongs to the vHost
-                        /*InstanceGetter*/
-        
-                        // power on the VMs
-                        /*PowerOnOperator*/
-
+		}
+	}
+	
+	// inner class for intercepting the key press
+	private class keyDown extends KeyAdapter {
+		public void keyPressed (KeyEvent e) {
+			int keyCode = e.getKeyCode();
+			switch(keyCode) {
+				case KeyEvent.VK_Q:
+					System.exit(0);
+			}
+		}
 	}
 }

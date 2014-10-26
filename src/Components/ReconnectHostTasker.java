@@ -1,3 +1,14 @@
+ /**
+   * Responsibility: reconnect the vHost to the vCenter
+   *
+   * @param none
+   * @return none
+   * 
+   * Implementation: sleeps for 2 minutes
+   * 
+   */
+
+
 package Components;
 
 public class ReconnectHostTasker {

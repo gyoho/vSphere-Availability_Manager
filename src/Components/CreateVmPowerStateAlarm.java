@@ -19,7 +19,6 @@ import com.vmware.vim25.AlarmSpec;
 import com.vmware.vim25.AlarmTriggeringAction;
 import com.vmware.vim25.DuplicateName;
 import com.vmware.vim25.InvalidName;
-import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.RuntimeFault;
 import com.vmware.vim25.SendEmailAction;
 import com.vmware.vim25.StateAlarmExpression;

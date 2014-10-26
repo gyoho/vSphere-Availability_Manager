@@ -1,5 +1,5 @@
  /**
-   * Responsibility: get the service instance with the IP address
+   * Responsibility: get the resource pool instance with the root folder and given name
    *
    * @param rootFolder
    * @param String ResourcePoolName
@@ -27,7 +27,8 @@ public class ResourcePoolGetter {
 		resourcePoolList = InstanceGetter.getAllInstance(rootFolder, "ResourcePool");
 		
 		for(ManagedEntity resourcePool : resourcePoolList) {
-			if(((ResourcePool)resourcePool).getName() == ResourcePoolName) {
+//			System.out.println("ResourcePool name: " + ((ResourcePool)resourcePool).getName());
+			if(((ResourcePool)resourcePool).getName().equals(ResourcePoolName)) {
 				return resourcePool;
 			}			
 		}

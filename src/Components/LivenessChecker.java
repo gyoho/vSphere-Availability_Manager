@@ -13,16 +13,12 @@
 
 package Components;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import com.vmware.vim25.mo.ManagedEntity;
 import com.vmware.vim25.mo.VirtualMachine;
 
-public class LivenessMonitor {
+public class LivenessChecker {
     
-    private int timeout;
+    /*private int timeout;
     private boolean isReachable = false;
     
     public LivenessMonitor(int timeout) {
@@ -31,9 +27,11 @@ public class LivenessMonitor {
     
     void setTimeout(int timeout) {
         this.timeout = timeout;
-    }
+    }*/
     
-    public boolean isReachable(String ipAddr) throws Exception {
+    public static boolean isResponding(String ipAddr) throws Exception {
+    	boolean isReachable = false;
+    	
 		String cmd = "ping -c 1 " + ipAddr;
 		Process ping = Runtime.getRuntime().exec(cmd);
 		ping.waitFor();
@@ -48,7 +46,7 @@ public class LivenessMonitor {
 	}
 	
     // Overload
-	public boolean isReachable(ManagedEntity instance) throws Exception {
+	public static boolean isResponding(ManagedEntity instance) throws Exception {
 		
 		// get IP address
 		String ipAddr = ((VirtualMachine)instance).getGuest().getIpAddress();
@@ -58,11 +56,10 @@ public class LivenessMonitor {
 			System.out.println("No IP address.");
 			// this is not reachable. b/c the ip is not available when power off
 			// consider this as dead
-			isReachable = false;
-			return isReachable;
+			return false;
 		}
 		
-		return isReachable = isReachable(ipAddr);
+		return isResponding(ipAddr);
 	}
 	
 	

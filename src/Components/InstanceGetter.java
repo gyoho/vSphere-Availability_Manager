@@ -30,9 +30,9 @@ public class InstanceGetter {
 			System.out.println("No " + instanceType + " exists in the inventory");
 		}
 
-		for (ManagedEntity instance : instanceList) {
-		    System.out.println("instance = " + instance.getName());
-		}
+		/*for (ManagedEntity instance : instanceList) {
+		    System.out.println(instanceType + " " + instance.getName());
+		}*/
 		
 		return instanceList;
 	}

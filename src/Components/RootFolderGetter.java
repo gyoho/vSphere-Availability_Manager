@@ -15,8 +15,8 @@ public class RootFolderGetter {
 	
 	public static Folder getRootFolder(ServiceInstance serviceInstance) {
 		Folder rootFolder = serviceInstance.getRootFolder();
-		String name = rootFolder.getName();
-		System.out.println("root:" + name);
+//		String name = rootFolder.getName();
+//		System.out.println("root:" + name);
 		return rootFolder;
 	}
 
