@@ -11,6 +11,8 @@ package Components;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+
 import com.vmware.vim25.InvalidProperty;
 import com.vmware.vim25.RuntimeFault;
 import com.vmware.vim25.mo.HostSystem;
@@ -19,8 +21,14 @@ import com.vmware.vim25.mo.VirtualMachine;
 
 public class VmToHostMapper {
 	
-	public static ManagedEntity getHostOfVm(ArrayList<ManagedEntity> hostList, ManagedEntity vm) throws InvalidProperty, RuntimeFault, RemoteException {
+	private HashMap<ManagedEntity, ManagedEntity> vmToHost;
+	private HashMap<ManagedEntity, ManagedEntity> vmToHostVM;
+	
+	// constructor
+	public VmToHostMapper(ArrayList<ManagedEntity> hostList, ArrayList<ManagedEntity> vmListInRecPool) throws InvalidProperty, RuntimeFault, RemoteException {
+		
 		/** VM to vHost **/
+		vmToHost = new HashMap<ManagedEntity, ManagedEntity>();
 		
 		// for each host, get all VMs belongs to the host
 		for(ManagedEntity host : hostList) {
@@ -29,20 +37,27 @@ public class VmToHostMapper {
 			// get all the VMs for the host
 			ArrayList<ManagedEntity> vmList = getAllVMsOfHost(host);
 
-			// for each vm in the host list, check if the name match with the given vm's name
-			for(ManagedEntity vms : vmList) {
-				if(vms.getName().equals(vm.getName())) {
-					return host;
-				}
+			// for each vm in the list, register it to the host
+			for(ManagedEntity vm : vmList) {
+//				System.out.println("vm name: " + vm.getName());
+				vmToHost.put(vm, host);
 			}
 		}
-		System.out.println("something really wrong...");
-		return null;		
-	}
-	
-	public static ManagedEntity getHostVMOfVM(ArrayList<ManagedEntity> vmListInRecPool, ArrayList<ManagedEntity> hostList, ManagedEntity vm) throws InvalidProperty, RuntimeFault, RemoteException {
+		
+//		System.out.println("map size: " + vmToHost.size());
+		
+		for(ManagedEntity host : hostList) {
+			ArrayList<ManagedEntity> vmList = getAllVMsOfHost(host);
+			for(ManagedEntity vm : vmList) {
+				System.out.println("vm name: " + vm.getName());
+				String name = vmToHost.get(vm).getName();
+				System.out.println("host name: " + name);
+			}
+		}
+		
 		
 		/** VM to HostVM **/
+		vmToHostVM = new HashMap<ManagedEntity, ManagedEntity>();
 		
 		// for each VM in the resource pool
 		// match the name of the last 8 chars with the VM's host name
@@ -70,23 +85,41 @@ public class VmToHostMapper {
 					// get all the VMs for the host
 					ArrayList<ManagedEntity> vmList = getAllVMsOfHost(host);
 					
-					// for each vm in the host list, check if the name match with the given vm's name
-					for(ManagedEntity vms : vmList) {
-						if(vms.getName().equals(vm.getName())) {
-							return hostVM;
-						}
-					}
+					// for each vm in the list, register it to the host
+					for(ManagedEntity vm : vmList) {
+						vmToHostVM.put(vm, hostVM);
+					}	
 				}
-			}
+			}		
 		}
 		
-		System.out.println("something really wrong...");
-		return null;		
-	} 
+		System.out.println("map size: " + vmToHostVM.size());
+	}
 	
 	// get all the VMs for the host
 	public static ArrayList<ManagedEntity> getAllVMsOfHost(ManagedEntity host) throws InvalidProperty, RuntimeFault, RemoteException {
 		ManagedEntity[] vmArray = ((HostSystem)host).getVms();
 		return (new ArrayList<ManagedEntity>(Arrays.asList(vmArray)));
 	}
+	
+	
+	public void registerVmToHost(ManagedEntity vm, ManagedEntity host) {
+		vmToHost.put(vm, host);
+	}
+	
+	
+	public void registerVmToHostVM(ManagedEntity vm, ManagedEntity hostVM) {
+		vmToHostVM.put(vm, hostVM);
+	}
+	
+	
+	public ManagedEntity getHostOfVm(ManagedEntity vm) {
+		ManagedEntity host = vmToHost.get(vm);
+		return host;		
+	}
+	
+	public ManagedEntity getHostVMOfVM(ManagedEntity vm) {
+		ManagedEntity hostVM = vmToHostVM.get(vm);
+		return hostVM;		
+	} 
 }

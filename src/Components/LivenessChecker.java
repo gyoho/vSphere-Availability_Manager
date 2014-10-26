@@ -41,7 +41,7 @@ public class LivenessChecker {
 			isReachable = false;
 		}
 		
-		System.out.println(ipAddr + " reachable: " + isReachable);
+//		System.out.println(ipAddr + " reachable: " + isReachable);
 		return isReachable;
 	}
 	

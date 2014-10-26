@@ -13,19 +13,40 @@
 package Components;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+
 import com.vmware.vim25.RuntimeFault;
+import com.vmware.vim25.mo.ManagedEntity;
 import com.vmware.vim25.mo.VirtualMachine;
 
-public class VMFailureHandler implements FailureHandler{
+public class VMFailureHandler implements Runnable {
 	
 	private int waitTime = 60*1000;
 	private VirtualMachine vm;
+	private ArrayList<ManagedEntity> vmList;
 	
-	public VMFailureHandler(VirtualMachine vm) {
+	public VMFailureHandler(VirtualMachine vm, ArrayList<ManagedEntity> vmList) {
 		this.vm = vm;
+		this.vmList = vmList;
 	}
+	
 
 	@Override
+	public void run() {
+		try {
+			process();
+		} catch (RuntimeFault e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void process() throws RuntimeFault, RemoteException, InterruptedException {
 		
 		/** Check VM power state **/
@@ -55,6 +76,10 @@ public class VMFailureHandler implements FailureHandler{
 
             // power on the VM
             PowerOnTasker.powerOnVM(vm, waitTime);
-		}		
+		}
+		
+		// add the removed trouble VM back to the list
+		// so it can start ping it again
+		vmList.add(vm);
 	}
 }

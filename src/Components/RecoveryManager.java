@@ -1,23 +1,21 @@
 package Components;
 
-import java.rmi.RemoteException;
+import java.util.ArrayList;
 
-import com.vmware.vim25.RuntimeFault;
-import com.vmware.vim25.mo.HostSystem;
-import com.vmware.vim25.mo.VirtualMachine;
+import com.vmware.vim25.mo.ManagedEntity;
 
 public class RecoveryManager implements Runnable {
 	
-	private VirtualMachine hostVM;
-	private HostSystem host;
-	private VirtualMachine vm;
-	private FailureHandler failureHandler;
+	private ArrayList<ManagedEntity> vmList;
+	private ArrayList<ManagedEntity> hostList;
+	private ArrayList<ManagedEntity> vmListInRecPool;
+	private FailureMonitor failureMonitor;
 	
-	public RecoveryManager(VirtualMachine hostVM, HostSystem host, VirtualMachine vm) {
-		this.hostVM = hostVM;
-		this.host = host;
-		this.vm = vm;
-		
+	public RecoveryManager(ArrayList<ManagedEntity> vmListInRecPool, ArrayList<ManagedEntity> hostList, ArrayList<ManagedEntity> vmList) {
+		this.vmList = vmList;
+		this.hostList = hostList;
+		this.vmListInRecPool = vmListInRecPool;
+		failureMonitor = new FailureMonitor();
 	}
 
 	@Override
@@ -25,23 +23,10 @@ public class RecoveryManager implements Runnable {
 		// monitor the VM by pinging
 		// instantiate a handler according to the case
 		try {
-			failureHandler = FailureMonitor.start(hostVM, host, vm);
+			failureMonitor.start(vmListInRecPool, hostList, vmList);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		try {
-			failureHandler.process();
-		} catch (RuntimeFault e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
 	}
 }

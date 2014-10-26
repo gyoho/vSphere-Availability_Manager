@@ -11,6 +11,10 @@ import Components.*;
 
 public class AvailabilityManager extends Frame {
 	
+	private Thread recoveryManager;
+	
+	
+	
 	private CredentialsHolder credentials;
 	
 	// for vCenter
@@ -29,10 +33,9 @@ public class AvailabilityManager extends Frame {
 	private ArrayList<ManagedEntity> vmListInRecPool;
 	
 	// main tasker
-	private VmToHostMapper vmToHostMapper;	
+//	private VmToHostMapper vmToHostMapper;	
 	private SnapshotTasker snapshotTasker;
-	private RecoveryManager recoveryManager;
-	
+
 	
 	// constructor
 	public AvailabilityManager() throws Exception {
@@ -66,8 +69,8 @@ public class AvailabilityManager extends Frame {
 		vmListInRecPool = new ArrayList<ManagedEntity>(Arrays.asList(((ResourcePool)resourcePool).getVMs()));
 		
 		
-		// instantiate the vm to host map
-		vmToHostMapper = new VmToHostMapper(hostList, vmListInRecPool);
+		/*// instantiate the vm to host map
+		vmToHostMapper = new VmToHostMapper(hostList, vmListInRecPool);*/
 		
 		// set alarm for all the datacenter
 		for(ManagedEntity dc : datacenterList) {
@@ -80,16 +83,29 @@ public class AvailabilityManager extends Frame {
 		}*/
 		
 		// instantiate the Snapshot Taker
-		snapshotTasker = new SnapshotTasker(vmListInRecPool, vmList);
+//		snapshotTasker = new SnapshotTasker(vmListInRecPool, vmList);
 		
 		// take first snapshot
 //		TODO: activate
 //		snapshotTasker.takeSnapshot();
 		
+		
+		recoveryManager = new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList));
+		
+		
+		
 		addKeyListener (new keyDown());
+		
 	}
 	
 	public void start() throws Exception {
+		
+		
+		/*for(ManagedEntity vm : vmList) {
+			System.out.println("vm name: " + vm.getName());
+			String name = vmToHostMapper.getHostOfVm(vm).getName();
+			System.out.println("host name: " + name);
+		}*/
 		
 		while(true) {
 			
@@ -97,33 +113,8 @@ public class AvailabilityManager extends Frame {
 			
 						
 			// get the recovery manager work
-			/** instantiate and invoke the Recovery Manager **/
-			
-			
-			// test for only one VM
-			
-				// get its host
-				HostSystem host = (HostSystem) vmToHostMapper.getHostOfVm(vmList.get(0));
-				
-				// get its hostVM
-				VirtualMachine hostVM = (VirtualMachine) vmToHostMapper.getHostVMOfVM(vmList.get(0));
-				
-				// register the recovery manager
-				new Thread(new RecoveryManager(hostVM, host, (VirtualMachine) vmList.get(0))).start();
-
-			
-			// for each VM, get its recovery manager
-			/*for(ManagedEntity vm : vmList) {
-				
-				// get its host
-				HostSystem host = (HostSystem) vmToHostMapper.getHostOfVm(vm);
-				
-				// get its hostVM
-				VirtualMachine hostVM = (VirtualMachine) vmToHostMapper.getHostVMOfVM(vm);
-				
-				// register the recovery manager
-				new Thread(new RecoveryManager(hostVM, host, (VirtualMachine) vm)).start();
-			}*/
+//			new Thread(new RecoveryManager(vmList, vmToHostMapper)).start();
+			recoveryManager.start();
 			
 			
 			// take snapshot for every configured time
