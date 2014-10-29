@@ -32,10 +32,15 @@ public class CreateVmPowerStateAlarm {
 	
 	public static void registerAlarm(ServiceInstance serviceInstance, ManagedEntity mgent) throws InvalidName, DuplicateName, RuntimeFault, RemoteException {
 		
+		System.out.println("\n\n\n--------------------- Alarm ---------------------\n");
+		
 		AlarmManager alarmMgr = serviceInstance.getAlarmManager();
 		if(!isAlarmRegistered(alarmMgr, mgent)) {
 			createNewAlarm(alarmMgr, mgent);
-		}		
+			System.out.println("Created an alarm for monitoring VM power state in every datacenter.");
+		} else {
+			System.out.println("The alarm alredy exists.");
+		}
 	}
 	
 	public static boolean isAlarmRegistered(AlarmManager alarmMgr, ManagedEntity mgent) throws InvalidName, DuplicateName, RuntimeFault, RemoteException {

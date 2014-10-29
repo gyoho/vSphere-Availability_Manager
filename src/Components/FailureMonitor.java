@@ -23,7 +23,7 @@ public class FailureMonitor {
 	
 	private VirtualMachine troubleVM;
 	
-	public void start(ArrayList<ManagedEntity> vmListInRecPool, ArrayList<ManagedEntity> hostList, ArrayList<ManagedEntity> vmList) throws Exception {
+	public synchronized void start(ArrayList<ManagedEntity> vmListInRecPool, ArrayList<ManagedEntity> hostList, ArrayList<ManagedEntity> vmList) throws Exception {
 	
 		/** For each VM ping in turn **/
 		// while all VMs are responding
@@ -61,7 +61,7 @@ public class FailureMonitor {
 			
 			// instantiate the handler thread
 			new Thread(new VMFailureHandler(troubleVM, vmList)).start();
-			Thread.sleep((long) (0.5*1000));
+			Thread.sleep((long) (2*1000));
 		}
 		
 		// Case2: vHost down, thus VM also down too
@@ -70,14 +70,15 @@ public class FailureMonitor {
 			
 			// instantiate the handler thread
 			new Thread(new HostFailureHandler(hostVM, host, troubleVM, vmList)).start();
+			Thread.sleep((long) (2*1000));
 		}	
 	}
+	
 	
 	// iterate through the VMs and ping each in turn 
 	// until it finds a VM with trouble
 	// at that time the vm variable will pointing the trouble VM
-
-	private boolean isAllVMsAlive(ArrayList<ManagedEntity> vmList) throws Exception {
+	private synchronized boolean isAllVMsAlive(ArrayList<ManagedEntity> vmList) throws Exception {
 		for(ManagedEntity vm : vmList) {
 			if(!LivenessChecker.isResponding((VirtualMachine)vm)) {
 				troubleVM = (VirtualMachine) vm;

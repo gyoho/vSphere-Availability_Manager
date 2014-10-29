@@ -1,3 +1,0 @@
-long start = System.currentTimeMillis();
-long end = System.currentTimeMillis();
-System.out.println("time taken:" + (end-start));

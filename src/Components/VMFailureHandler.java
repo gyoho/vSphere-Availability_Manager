@@ -21,7 +21,7 @@ import com.vmware.vim25.mo.VirtualMachine;
 
 public class VMFailureHandler implements Runnable {
 	
-	private int waitTime = 60*1000;
+	private int waitTime = 70*1000;
 	private VirtualMachine vm;
 	private ArrayList<ManagedEntity> vmList;
 	
@@ -64,6 +64,7 @@ public class VMFailureHandler implements Runnable {
             // Case1.2: alarm is off: failure happened
             else {
             	System.out.println("Check if alarm is set");
+            	System.out.println("Power on " + vm.getName());
             	// power on the VM
                 PowerOnTasker.powerOnVM(vm, waitTime);
             }

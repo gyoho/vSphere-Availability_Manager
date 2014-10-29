@@ -1,8 +1,0 @@
-// from the vHost list
-foreachloop {
-	if(vhost != thevhost) {
-		// check if the vhost is alive
-	}
-}
-
-return the alternative vhost;

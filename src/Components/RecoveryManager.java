@@ -27,7 +27,6 @@ public class RecoveryManager implements Runnable {
 			try {
 				failureMonitor.start(vmListInRecPool, hostList, vmList);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

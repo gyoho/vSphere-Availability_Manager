@@ -17,6 +17,7 @@ public class SnapshotTasker extends TakeSnapshotTasker implements Runnable{
 	public void run() {
 		
 		do {
+			System.out.println("\n\n\n--------------------- Snapshot ---------------------\n");
 			takeSnapshotForAll();
 		} while(wakeUp());
 	}

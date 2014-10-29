@@ -73,7 +73,8 @@ public class HostFailureHandler implements Runnable {
 		
 		// add the removed trouble VM back to the list
 		// so it can start ping it again
-		vmList.add(vm);
+		if(Thread.holdsLock(vm))
+			vmList.add(vm);
 	}
 	
 	private void vHostPowerOnTask(VirtualMachine hostVM, HostSystem host) throws RuntimeFault, RemoteException, InterruptedException {

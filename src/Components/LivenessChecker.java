@@ -18,17 +18,6 @@ import com.vmware.vim25.mo.VirtualMachine;
 
 public class LivenessChecker {
     
-    /*private int timeout;
-    private boolean isReachable = false;
-    
-    public LivenessMonitor(int timeout) {
-        this.timeout = timeout;
-    }
-    
-    void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }*/
-    
     public static boolean isResponding(String ipAddr) throws Exception {
     	boolean isReachable = false;
     	
@@ -46,7 +35,7 @@ public class LivenessChecker {
 	}
 	
     // Overload
-	public static boolean isResponding(ManagedEntity instance) throws Exception {
+	public synchronized static boolean isResponding(ManagedEntity instance) throws Exception {
 		
 		// get IP address
 		String ipAddr = ((VirtualMachine)instance).getGuest().getIpAddress();
@@ -63,7 +52,7 @@ public class LivenessChecker {
 	}
 	
 	
-	
+	/** Don't work well **/
 	/*public boolean isReachable(String ipAddr) {
 		
 		// Ping the VM

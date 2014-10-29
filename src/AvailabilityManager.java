@@ -1,6 +1,3 @@
-import java.awt.Frame;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -10,10 +7,6 @@ import Components.*;
 
 
 public class AvailabilityManager {
-	
-	private Thread recoveryManager;
-	
-	
 	
 	private CredentialsHolder credentials;
 	
@@ -32,16 +25,10 @@ public class AvailabilityManager {
 	private ArrayList<ManagedEntity> datacenterList;
 	private ArrayList<ManagedEntity> vmListInRecPool;
 	
-	// main tasker
-//	private VmToHostMapper vmToHostMapper;	
-	private SnapshotTasker snapshotTasker;
-
-	
 	// constructor
 	public AvailabilityManager() throws Exception {
 		
 		/*** All initial configuration ***/
-		
 		// Instantiate credentials
 		credentials = new CredentialsHolder();
 		
@@ -69,9 +56,6 @@ public class AvailabilityManager {
 		vmListInRecPool = new ArrayList<ManagedEntity>(Arrays.asList(((ResourcePool)resourcePool).getVMs()));
 		
 		
-		/*// instantiate the vm to host map
-		vmToHostMapper = new VmToHostMapper(hostList, vmListInRecPool);*/
-		
 		// set alarm for all the datacenter
 		for(ManagedEntity dc : datacenterList) {
 			CreateVmPowerStateAlarm.registerAlarm(vCenterServiceInstance, dc);
@@ -82,33 +66,28 @@ public class AvailabilityManager {
 			CreateVmPowerStateAlarm.registerAlarm(vCenterServiceInstance, vm);
 		}*/
 		
-		// instantiate the Snapshot Taker
-//		snapshotTasker = new SnapshotTasker(vmListInRecPool, vmList);
-		
-		// take first snapshot
-//		TODO: activate
-//		snapshotTasker.takeSnapshot();
-		
-		
-//		recoveryManager = new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList));
 	}
 	
 	public void start() {
+		
+		// print statistics
+		StatisticsManager.printStats(vmList);
 			
-			// print statistics
-
+		/** Main Starts **/
+		try {
 			
-			try {
-//				new Thread(new SnapshotTasker(vmListInRecPool, vmList)).start();
-				Thread.sleep(2*1000);
-				// get the recovery manager work
-				new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList)).start();
-				
-				// take snapshot for every configured time
-				
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
+			// take snapshot for every configured time
+			new Thread(new SnapshotTasker(vmListInRecPool, vmList)).start();
+			
+			// for the first snapshot wait to finish the job
+			Thread.sleep(2*1000);
+			
+			// get the recovery manager work
+			new Thread(new RecoveryManager(vmListInRecPool, hostList, vmList)).start();
+			
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}	
 	}
 }
