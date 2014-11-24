@@ -1,0 +1,14 @@
+ /**
+   * Responsibility: check instance's power state
+   *
+   * @param instance: vHost, VM
+   * @return powerOn: boolean
+   *
+   */
+
+
+// get VM runtime status
+VirtualMachineRuntimeInfo vmri = (VirtualMachineRuntimeInfo) vm.getRuntime();
+
+// get power status
+if(vmri.getPowerState() == VirtualMachinePowerState.poweredOn)

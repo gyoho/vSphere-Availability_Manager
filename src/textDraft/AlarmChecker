@@ -1,0 +1,13 @@
+ /**
+   * Responsibility: check if the alarm is triggered
+   *
+   * @param instance: vHost, VM
+   * @return flag: boolean --> true if triggered
+   *
+   * Implementation: check the VM state. If yellow flag up, the alarm is triggered
+   */
+
+
+
+if(vm.getSummary().getOverallStatus().toString().equals("yellow"))
+	 System.out.println("VmPowerStateAlarm triggered!");

@@ -1,0 +1,23 @@
+ /**
+   * Responsibility: take snapshot for the instance
+   *
+   * @param instance: vHost, VM
+   * @return none: use try/catch to catch exception
+   *
+   * Implementation: only keep the latest snapshot
+   */
+
+   
+// RemoveAllSnapshots: Remove all old snapshots
+Task task = vm.removeAllSnapshots_Task();      
+if(task.waitForTask() == Task.SUCCESS) {
+	System.out.println("Removed all snapshots");
+}
+
+
+// CreateSnapshot: Take the current state snapshot
+// create snapshot
+Task task1 = vm.createSnapshot_Task("latest snapshot", "remove all old snapshots", false, false);
+if (task1.waitForTask() == Task.SUCCESS) {
+	System.out.println("Snapshot was created.");
+}

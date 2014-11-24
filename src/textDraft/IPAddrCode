@@ -1,0 +1,14 @@
+
+
+// get IP addr
+String ipAddr = vm.getGuest().getIpAddress();
+System.out.println("IP addr: " + ipAddr);
+if(ipAddr == null) --> this is unreachable. b/c the ip is not available when power off
+
+
+/*** extra info ***/
+/*Folder dcprt = (Folder) newHost.getParent();
+System.out.println("Host parent: " + dcprt.getName());*/
+
+Folder vmprt = (Folder) vm.getParent();
+System.out.println("VM parent: " + vmprt.getName());
